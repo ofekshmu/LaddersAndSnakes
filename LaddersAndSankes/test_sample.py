@@ -23,6 +23,7 @@ def tests_board():
     assert Main.get_board_value(b, 19) == -1
     assert Main.get_board_value(b, 20) == -1
     assert Main.get_board_value(b, 46) == 25
+    assert Main.get_board_value(b, 89) == 68
     assert Main.get_board_value(b, 90) == -1
     assert Main.get_board_value(b, 91) == -1
     assert Main.get_board_value(b, 92) == 88

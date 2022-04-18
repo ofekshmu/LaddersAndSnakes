@@ -1,5 +1,4 @@
 import random
-from tkinter import Place
 import numpy as np
 
 PLAYER1 = 1
@@ -75,11 +74,20 @@ def simulate(n_simulations = 5000, boardSize = 3):
         stats[result] += 1
     
     print(f"""~~~ Simulation results ~~~
-Player1 won {stats[PLAYER1]} times
-Player2 won {stats[PLAYER2]} times
-Tie has accured {stats[TIE]} times\n""")
+simulations count: {n_simulations}, board size: {boardSize}
+\tPlayer1 won {stats[PLAYER1]} times
+\tPlayer2 won {stats[PLAYER2]} times
+\tTie has accured {stats[TIE]} times\n""")
          
 
 if __name__ == "__main__":
-    simulate(5000)
+    for size in range(3,16):
+        simulate(n_simulations=5000, boardSize=size)
+    
+    simulate(n_simulations=5000, boardSize=25)
+    simulate(n_simulations=5000, boardSize=50)
+    
+    #simulate(n_simulations=5000000, boardSize=25)
+    #simulate(n_simulations=5000000, boardSize=50)
+
     

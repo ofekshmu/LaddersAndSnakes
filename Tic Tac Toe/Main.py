@@ -6,10 +6,13 @@ PLAYER1 = 1
 PLAYER2 = -1
 TIE = 0
 
-def gen_random():
-    pass
-
 def buildBoard(size):
+    """
+    @size: board size
+    returns a @loc_lst containing all avaliable pairs of indexes on the board
+    and an empty board initialized with zeros.
+    * initialize value has no meaning as long as its different from @PLAYER1 AND @PLAYER2
+    """
     loc_lst = []
     for i in range(size):
         for j in range(size):
@@ -18,6 +21,11 @@ def buildBoard(size):
     return loc_lst, np.zeros( (size, size), dtype=np.int32 )
 
 def checkWin(player, board, move: tuple):
+    """
+    check the board for a win and return True if found and flase otherwise.
+    win is checked only on the corresponding row/col in which player currently made a move.
+    diagonal is checked only if a was made on the diagonal lines.
+    """
     n = len(board)
     (x, y) = move
     found = True
@@ -38,28 +46,45 @@ def checkWin(player, board, move: tuple):
     if found:
         return found
     
-    # check diagonal
+    # check diagonal bottomleft to topright
     if x == y:
         found = True
         for i in range(n):
             if board[i, i] != player:
                 found = False
                 break
+        if found:
+            return found
+        
+    # check diagonal topleft to bottomright
+    if x - 9 ==  y:
+        found = True
+        for i in range(n):
+            if board[9 - i, i] != player:
+                found = False
+                break
+    
     return found               
 
 def gameLoop(boardSize = 3):
-    
+    """
+    Game loop, including all basic game features
+    """
     loc_lst, board = buildBoard(boardSize)
-    currentPlayer = PLAYER1
+    currentPlayer = PLAYER1 # can be changed, PLAYER1 starts playing
     
     while True:
+        # generate a random index out of the avaliable number of pairs
         rand_index = random.randint(0,len(loc_lst)-1)
+        # pop the pair 
         (i, j) = loc_lst.pop(rand_index)
+        # mark the board on the corresponding location
         board[i, j] = currentPlayer
-        #print(board)
+
         if checkWin(player=currentPlayer, board=board, move=(i,j)):
             return currentPlayer
         
+        # once location list is empty, no more moves are avaliable - tie
         if len(loc_lst) == 0:
             return TIE
 
@@ -68,6 +93,9 @@ def gameLoop(boardSize = 3):
 
 
 def simulate(n_simulations = 5000, boardSize = 3):
+    """
+    Simulate data according to assignment description
+    """
     stats = {PLAYER1: 0, PLAYER2: 0, TIE: 0}
 
     for i in range(n_simulations):
@@ -83,6 +111,10 @@ simulations count: {n_simulations}, board size: {boardSize}
     return stats
          
 def plot_Data(lst, sim_count, initial_board):
+    """
+    Plot a graph describing the probability to get a TIE/player1 win/player2 win
+    as a function of the board size.
+    """
     line_1, line_2, line_3 = [], [], []
     n = len(lst)
     for d in lst:
@@ -101,10 +133,12 @@ def plot_Data(lst, sim_count, initial_board):
     ax.set_xlabel("Board size")
     ax.set_ylabel("Probability")
 
+    # match x axis
     ax.set_ylim([0,1])
     x_lst = list(range(n))
     ax.set_xticks(x_lst)
     ax.set_xticklabels([x + initial_board for x in x_lst])
+
     plt.show()
 
 if __name__ == "__main__":
@@ -112,6 +146,7 @@ if __name__ == "__main__":
     n_simulations = 5000
     initial_board = 3
     last_board = 15
+
     for size in range(initial_board, last_board + 1):
         data = simulate(n_simulations, size)
         data_lst.append(data)

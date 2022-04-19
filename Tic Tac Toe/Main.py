@@ -32,23 +32,23 @@ def checkWin_V2(player, board, move: tuple):
     
     # checking row
     if np.all(board[x,:] == board[x, 0]):
-        return 1,True
+        return True
     
     # checking coloumn
     if np.all(board[:,y] == board[0, y]):
-        return 2,True
+        return True
 
     if x == y:
         diag_1 = board.diagonal()
         if np.all(diag_1 == diag_1[0]):
-            return 3,True
+            return True
 
     if x - len(board) == y:
         diag_2 = np.fliplr(board).diagonal()
         if np.all(diag_2 == diag_2[0]):
             return 4,True
 
-    return 5, False
+    return False
 
 def checkWin(player, board, move: tuple):
     """
@@ -64,12 +64,9 @@ def checkWin(player, board, move: tuple):
         if board[x, j] != player:
             found = False
             break
-    # result = np.all(board[x,:] == board[x, 0])
-    # if result != found:
-    #     raise exception("error....")
     
     if found:
-        return 1,found
+        return found
     
     found = True
     # check col
@@ -77,13 +74,9 @@ def checkWin(player, board, move: tuple):
         if board[i, y] != player:
             found = False
             break
-    
-    # result = np.all(board[:,y] == board[0, y])
-    # if result != found:
-    #     raise exception("error....")
 
     if found:
-        return 2, found
+        return found
     
     # check diagonal bottomleft to topright
     if x == y:
@@ -93,7 +86,7 @@ def checkWin(player, board, move: tuple):
                 found = False
                 break
         if found:
-            return 3, found
+            return found
         
     # check diagonal topleft to bottomright
     if x - len(board) ==  y:
@@ -103,7 +96,7 @@ def checkWin(player, board, move: tuple):
                 found = False
                 break
     
-    return 4, found               
+    return found               
 
 def gameLoop(boardSize = 3):
     """
@@ -120,14 +113,7 @@ def gameLoop(boardSize = 3):
         # mark the board on the corresponding location
         board[i, j] = currentPlayer
 
-        # TESTING:
-        s1, v1 = checkWin(player=currentPlayer, board=board, move=(i,j))
-        s2, v2 = checkWin_V2(player=currentPlayer, board=board, move=(i,j))
-        if v1 != v2:
-            print(f"v1: {s1}, {v1}\nv2: {s2}, {v2}\n {board}\nmove = {i},{j}\n{currentPlayer}")
-            raise exception("Failed")
-
-        if v1:
+        if checkWin(player=currentPlayer, board=board, move=(i,j)):
             return currentPlayer
         
         # once location list is empty, no more moves are avaliable - tie
@@ -185,7 +171,7 @@ def plot_Data(lst, sim_count, initial_board):
     ax.set_xticks(x_lst)
     ax.set_xticklabels([x + initial_board for x in x_lst])
 
-    #plt.show()
+    plt.show()
 
 def main():
     data_lst = []

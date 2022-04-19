@@ -1,3 +1,4 @@
+from logging import exception
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,11 +15,40 @@ def buildBoard(size):
     * initialize value has no meaning as long as its different from @PLAYER1 AND @PLAYER2
     """
     loc_lst = []
+
     for i in range(size):
         for j in range(size):
             loc_lst.append((i,j))
 
-    return loc_lst, np.zeros( (size, size), dtype=np.int32 )
+    empty_Board = np.zeros( (size, size), dtype=np.int32 )
+    
+    return loc_lst, empty_Board
+
+def checkWin_V2(player, board, move: tuple):
+    """
+    Same as checkWin but all decisions are made with numpy.
+    """
+    (x, y) = move # current move made    
+    
+    # checking row
+    if np.all(board[x,:] == board[x, 0]):
+        return True
+    
+    # checking coloumn
+    if np.all(board[:,y] == board[0, y]):
+        return True
+
+    if x == y:
+        diag_1 = board.diagonal()
+        if np.all(diag_1 == diag_1[0]):
+            return True
+
+    if x - 9 == y:
+        diag_2 = np.fliplr(board).diagonal()
+        if np.all(diag_2 == diag_2[0]):
+            return True
+
+    return False
 
 def checkWin(player, board, move: tuple):
     """
@@ -27,13 +57,17 @@ def checkWin(player, board, move: tuple):
     diagonal is checked only if a was made on the diagonal lines.
     """
     n = len(board)
-    (x, y) = move
-    found = True
+    (x, y) = move # current move made
+    found = True # flag for determining if a win streak was found
     # check row
     for j in range(n):
         if board[x, j] != player:
             found = False
             break
+    result = np.all(board[x,:] == board[x, 0])
+    if result != found:
+        raise exception("error....")
+    
     if found:
         return found
     
@@ -43,6 +77,11 @@ def checkWin(player, board, move: tuple):
         if board[i, y] != player:
             found = False
             break
+    
+    result = np.all(board[:,y] == board[0, y])
+    if result != found:
+        raise exception("error....")
+
     if found:
         return found
     
@@ -81,7 +120,7 @@ def gameLoop(boardSize = 3):
         # mark the board on the corresponding location
         board[i, j] = currentPlayer
 
-        if checkWin(player=currentPlayer, board=board, move=(i,j)):
+        if checkWin_V2(player=currentPlayer, board=board, move=(i,j)):
             return currentPlayer
         
         # once location list is empty, no more moves are avaliable - tie
@@ -139,9 +178,9 @@ def plot_Data(lst, sim_count, initial_board):
     ax.set_xticks(x_lst)
     ax.set_xticklabels([x + initial_board for x in x_lst])
 
-    plt.show()
+    #plt.show()
 
-if __name__ == "__main__":
+def main():
     data_lst = []
     n_simulations = 5000
     initial_board = 3
@@ -158,5 +197,8 @@ if __name__ == "__main__":
 
     #simulate(n_simulations=5000000, boardSize=25)
     #simulate(n_simulations=5000000, boardSize=50)
+
+# if __name__ == "__main__":
+#     main()
 
     

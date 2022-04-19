@@ -32,23 +32,23 @@ def checkWin_V2(player, board, move: tuple):
     
     # checking row
     if np.all(board[x,:] == board[x, 0]):
-        return True
+        return 1,True
     
     # checking coloumn
     if np.all(board[:,y] == board[0, y]):
-        return True
+        return 2,True
 
     if x == y:
         diag_1 = board.diagonal()
         if np.all(diag_1 == diag_1[0]):
-            return True
+            return 3,True
 
-    if x - 9 == y:
+    if x - len(board) == y:
         diag_2 = np.fliplr(board).diagonal()
         if np.all(diag_2 == diag_2[0]):
-            return True
+            return 4,True
 
-    return False
+    return 5, False
 
 def checkWin(player, board, move: tuple):
     """
@@ -64,12 +64,12 @@ def checkWin(player, board, move: tuple):
         if board[x, j] != player:
             found = False
             break
-    result = np.all(board[x,:] == board[x, 0])
-    if result != found:
-        raise exception("error....")
+    # result = np.all(board[x,:] == board[x, 0])
+    # if result != found:
+    #     raise exception("error....")
     
     if found:
-        return found
+        return 1,found
     
     found = True
     # check col
@@ -78,12 +78,12 @@ def checkWin(player, board, move: tuple):
             found = False
             break
     
-    result = np.all(board[:,y] == board[0, y])
-    if result != found:
-        raise exception("error....")
+    # result = np.all(board[:,y] == board[0, y])
+    # if result != found:
+    #     raise exception("error....")
 
     if found:
-        return found
+        return 2, found
     
     # check diagonal bottomleft to topright
     if x == y:
@@ -93,17 +93,17 @@ def checkWin(player, board, move: tuple):
                 found = False
                 break
         if found:
-            return found
+            return 3, found
         
     # check diagonal topleft to bottomright
-    if x - 9 ==  y:
+    if x - len(board) ==  y:
         found = True
         for i in range(n):
             if board[9 - i, i] != player:
                 found = False
                 break
     
-    return found               
+    return 4, found               
 
 def gameLoop(boardSize = 3):
     """
@@ -120,7 +120,14 @@ def gameLoop(boardSize = 3):
         # mark the board on the corresponding location
         board[i, j] = currentPlayer
 
-        if checkWin_V2(player=currentPlayer, board=board, move=(i,j)):
+        # TESTING:
+        s1, v1 = checkWin(player=currentPlayer, board=board, move=(i,j))
+        s2, v2 = checkWin_V2(player=currentPlayer, board=board, move=(i,j))
+        if v1 != v2:
+            print(f"v1: {s1}, {v1}\nv2: {s2}, {v2}\n {board}\nmove = {i},{j}\n{currentPlayer}")
+            raise exception("Failed")
+
+        if v1:
             return currentPlayer
         
         # once location list is empty, no more moves are avaliable - tie

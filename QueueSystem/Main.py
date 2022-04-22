@@ -42,92 +42,97 @@ def getPayment(animal: Animal):
 
 def goToWork(working_hours, case: Case):
     
-    time = 1
-    maxTime = working_hours*60
-    n = 0
+    # ------------------- Initialize work day -------------------
+    time = 1                        # Initial time stamp
+    maxTime = working_hours*60      # resolution in min
+    q_data = 0                           # will hold the sum standing in line each day
 
-    client = None
-    ttl = -1
-    ttc = -1
-    ttd = -1 
+    client = None                   # who am i currently serving - Dog/Cat
+    ttl = -1                        # time to leave - how much time is left until a client finished its treatment
+    ttc = -1                        # time to cat - how much time until a cat arrives 
+    ttd = -1                        # time to dog
+    revenue = 0                     # will hold the daily income
+    
+    statistics = {Animal.DOG: 0,    # dogs accepted 
+                  Animal.CAT: 0,    # cats accepted
+                  'C': 0,           # dogs rejected
+                  'D': 0 }          # cats rejected
 
-    revenue = 0
-    statistics = {Animal.DOG: 0,  # dogs accepted 
-                  Animal.CAT: 0,  # cats accepted
-                  'C': 0,  # dogs rejected
-                  'D': 0 } # cats rejected
-
+    # Initialize queue size according to case
     if case == case.B1:
         queue_size = 20
     elif case == case.B3:
         queue_size = 9
     else:
         queue_size = 10 
+    
     myQueue = QueueModule.QueueEx(queue_size)
     
     if case == Case.B3:
-        extraQueue = QueueModule.QueueEx(1) # queue for cats only
-        ttl_turtles = -1
-
+        extraQueue = QueueModule.QueueEx(1) # Queue for cats only
+        ttl_turtles = -1                    # same as ttl for new queue
+    # -----------------------------------------------------------
+    # ---------------------- Stat Work day ----------------------
     while time < maxTime:
-        if ttc == -1:
-            ttc = appear(Animal.CAT)
+     
+        if ttc == -1:                           # system does not know the next apperance of a cat, and will rand a new value
+            ttc = appear(Animal.CAT)    
         if ttd == -1:
             ttd = appear(Animal.DOG)
 
-        if ttc == 0:
-            if case == Case.B3:
+        if ttc == 0:                            # a cat arrived at the store                                       
+            if case == Case.B3:                 # In case B3, insertion is made to a different queue
                 if extraQueue.isEmpty():
                     extraQueue.enqueue(Animal.CAT)
                 else:
                     statistics['D'] += 1
+            # ------- Standard case --------
             else:
-                if myQueue.isEmpty():
-                    myQueue.enqueue(Animal.CAT)
+                if myQueue.isEmpty():           # Insert a cat only if queue is empty
+                    myQueue.enqueue(Animal.CAT) 
                 else:
-                    statistics['D'] += 1
+                    statistics['D'] += 1        # Cat was rejected
+            # ------------------------------
 
         
-        if ttd == 0:
+        if ttd == 0:                            # a dog arrived at the store
             if not myQueue.isFull():
                 myQueue.enqueue(Animal.DOG)
             else:
-                revenue -= 0.1
+                revenue -= 0.1 
                 statistics['C'] += 1
 
-        if ttl == -1:
+        if ttl == -1:                           # Bunny is currenly avaliable
             if not myQueue.isEmpty():
                 client = myQueue.dequeue()
                 ttl = round(wait(client, Animal.BUNNY, case))
-        elif ttl == 0:
+        elif ttl == 0:                          # Treatment is finished
             revenue += getPayment(client)
-            try:
-                statistics[client] += 1
-            except:
-                print(client)
+            statistics[client] += 1
             client = None
 
         if case == Case.B3:
             if ttl_turtles == -1:
                 if not extraQueue.isEmpty():
-                    extraQueue.dequeue() # No need to take the value popped since we know its a cat
+                    extraQueue.dequeue()        # No need to take the value popped since we know its a cat
                     ttl_turtles = round(wait(Animal.CAT, Animal.TURTLE, Case.B3))
             elif ttl_turtles == 0:
                 revenue += getPayment(Animal.CAT)
                 statistics[Animal.CAT] += 1
 
 
-        n += myQueue.getSize()
+        q_data += myQueue.getSize()             # collecting queue data
 
-        ttd -= 1
+        ttd -= 1                                # update time parameters
         ttc -= 1
-        if ttl > -1: ttl -= 1
-        if case == Case.B3 and ttl_turtles > -1: ttl_turtles -= 1
+        if ttl > -1: ttl -= 1                   # avoid reaching a ttl of negative value other than -1
+
+        if case == Case.B3 and ttl_turtles >-1:  
+            ttl_turtles -= 1
         time += 1
-
     
-    return statistics, revenue, n/(working_hours*60)
-
+    queue_avg_size = q_data/(working_hours*60) 
+    return statistics, revenue, queue_avg_size
 
 def simulate(days, working_hours, case: Case):
     results = []
@@ -165,13 +170,15 @@ def analysis(results, days):
     """)
 
 def main():
+    # --- Parameters for the user to Change ---
     days = 100 # Should be 100
     working_hours = 12 # out of 24
-    case = Case.B3
+    case = Case.B2
+    # -----------------------------------------
     
     results = simulate(days, working_hours, case)
-
     analysis(results, days)
+
 
 if __name__ == "__main__":
     main()

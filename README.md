@@ -33,4 +33,14 @@ The Matrix will represent the Game board and its main application is to help det
 
 note: Winning cnditions are checked only on the row/col the current player has played on. Also, diagonal winning conditions are checked in the same circumstances.
 
+## Task 3 - Queue System
+
+- Settings:
+Different subtasks of the assignment can be switched trough the variable **case** located in the main() function. each subtask consists of settings relevant to the settings defined.
+
+- Notes:
+1. The output of the function **wait** was rounded since the parameter returned by the function is used to represent time in resolution of **Seconds** but the number returned is decimal due to the *exponential disstibution*, therfore, the **round** function was used to round up the values to integers.
+
+2. ttl variables are all lower bounded by 0 (including), while the value **-1** represents a vaccant spot and is used only as an indication with no specific meaning to the value itself.
+
 

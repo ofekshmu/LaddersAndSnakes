@@ -1,3 +1,4 @@
+from logging import exception
 import queue
 from re import L
 import numpy as np
@@ -31,14 +32,19 @@ def wait(customer : Animal, provider: Animal, case: Case):
     
     if customer == Animal.CAT:
         return np.random.exponential(multiplier*lambda_cat)
-    else:
+    elif customer == Animal.DOG:
         return np.random.exponential(multiplier*lambda_dog)
+    else:
+        raise exception(f"Value Error: {customer}")
+
 
 def getPayment(animal: Animal): 
     if animal == Animal.CAT:
         return 3
-    else:
+    elif animal == Animal.DOG:
         return 1
+    else:
+        raise exception(f"Value Error: {animal}")
 
 def goToWork(working_hours, case: Case):
     

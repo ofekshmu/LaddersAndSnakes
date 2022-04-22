@@ -43,7 +43,15 @@ class QueueEx(Queue):
             print(f"Queue is Full, {obj} was not inserted.")
     
     def dequeue(self):
-        return super().dequeue()
+        obj = super().dequeue()
+        self.size -= 1
+        return obj
 
     def isEmpty(self):
         return super().isEmpty()
+
+    def isFull(self):
+        return self.size == self.maxSize
+
+    def getSize(self):
+        return self.size

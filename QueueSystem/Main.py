@@ -1,6 +1,4 @@
 from logging import exception
-import queue
-from re import L
 import numpy as np
 import QueueModule
 from enum import Enum

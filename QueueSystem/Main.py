@@ -1,3 +1,4 @@
+import queue
 from re import L
 import numpy as np
 import QueueModule
@@ -7,25 +8,32 @@ class Animal(Enum):
     CAT = 1,
     DOG = 2
 
+class Case(Enum):
+    A = 1,
+    B1 = 2,
+    B2 = 3,
+    B3 = 4
+
 def appear(animal : Animal): # 0 - inf
-    if type == Animal.CAT:
+    if animal == Animal.CAT:
         return np.random.poisson(1.5)
     else:
         return np.random.poisson(3)
 
-def wait(animal : Animal):
-    if type == Animal.CAT:
-        return np.random.exponential(5)
+def wait(animal : Animal, case: Case):
+    const = 0.5 if case == Case.B2 else 1
+    if animal == Animal.CAT:
+        return np.random.exponential(const*5)
     else:
-        return np.random.exponential(3)
+        return np.random.exponential(const*3)
 
 def getPayment(animal: Animal): 
-    if type == Animal.CAT:
+    if animal == Animal.CAT:
         return 3
     else:
         return 1
 
-def goToWork(working_hours, queue_size):
+def goToWork(working_hours, case: Case):
     
     time = 1
     maxTime = working_hours*60
@@ -42,6 +50,7 @@ def goToWork(working_hours, queue_size):
                   'C': 0,  # dogs rejected
                   'D': 0 } # cats rejected
 
+    queue_size = 20 if case == Case.B1 else 10
     myQueue = QueueModule.QueueEx(queue_size)
 
     while time < maxTime:
@@ -67,7 +76,7 @@ def goToWork(working_hours, queue_size):
         if ttl == -1:
             if not myQueue.isEmpty():
                 client = myQueue.dequeue()
-                ttl = round(wait(client))
+                ttl = round(wait(client, case))
         elif ttl == 0:
             revenue += getPayment(client)
             statistics[client] += 1
@@ -84,11 +93,11 @@ def goToWork(working_hours, queue_size):
     return statistics, revenue, n/(working_hours*60)
 
 
-def simulate(days, working_hours, queue_size):
+def simulate(days, working_hours, case: Case):
     results = []
 
     for d in range(days):
-        results.append(goToWork(working_hours, queue_size))
+        results.append(goToWork(working_hours, case))
 
     return results        
         
@@ -122,9 +131,9 @@ def analysis(results, days):
 def main():
     days = 100 # Should be 100
     working_hours = 12 # out of 24
-    queue_size = 10
+    case = Case.B3
     
-    results = simulate(days, working_hours, queue_size)
+    results = simulate(days, working_hours, case)
 
     analysis(results, days)
 

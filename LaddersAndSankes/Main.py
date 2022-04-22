@@ -25,7 +25,7 @@ def check_sum(outcome, position):
     """
     @outcome - dice roll - a number in [1,6]
     @position - the players position [1,100]
-    returns True if outcome equalls to position's sum of digits, False otherwise
+    returns True if outcome equals to final position's sum of digits (until we get one digit number), False otherwise
     """
     sum_digits = position // 100 % 10 + position // 10 % 10  + position % 10
     if outcome == sum_digits:

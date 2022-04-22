@@ -89,10 +89,10 @@ def checkWin(player, board, move: tuple):
             return found
         
     # check diagonal topleft to bottomright
-    if x - len(board) ==  y:
+    if (len(board) - 1) - x ==  y:
         found = True
         for i in range(n):
-            if board[9 - i, i] != player:
+            if board[(len(board) - 1) - i, i] != player:
                 found = False
                 break
     

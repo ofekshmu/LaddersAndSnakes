@@ -4,9 +4,14 @@ import numpy as np
 import QueueModule
 from enum import Enum
 
+WAITING_CONST = (5, 3)
+WAITING_CONST_B3 = (5/3, 1)
+
 class Animal(Enum):
     CAT = 1,
-    DOG = 2
+    DOG = 2,
+    BUNNY = 3,
+    TURTLE = 4
 
 class Case(Enum):
     A = 1,
@@ -20,12 +25,14 @@ def appear(animal : Animal): # 0 - inf
     else:
         return np.random.poisson(3)
 
-def wait(animal : Animal, case: Case):
-    const = 0.5 if case == Case.B2 else 1
-    if animal == Animal.CAT:
-        return np.random.exponential(const*5)
+def wait(customer : Animal, provider: Animal, case: Case):
+    multiplier = 0.5 if case == Case.B2 else 1
+    (lambda_cat, lambda_dog) = WAITING_CONST_B3 if provider == Animal.TURTLE else WAITING_CONST
+    
+    if customer == Animal.CAT:
+        return np.random.exponential(multiplier*lambda_cat)
     else:
-        return np.random.exponential(const*3)
+        return np.random.exponential(multiplier*lambda_dog)
 
 def getPayment(animal: Animal): 
     if animal == Animal.CAT:
@@ -50,8 +57,17 @@ def goToWork(working_hours, case: Case):
                   'C': 0,  # dogs rejected
                   'D': 0 } # cats rejected
 
-    queue_size = 20 if case == Case.B1 else 10
+    if case == case.B1:
+        queue_size = 20
+    elif case == case.B3:
+        queue_size = 9
+    else:
+        queue_size = 10 
     myQueue = QueueModule.QueueEx(queue_size)
+    
+    if case == Case.B3:
+        extraQueue = QueueModule.QueueEx(1) # queue for cats only
+        ttl_turtles = -1
 
     while time < maxTime:
         if ttc == -1:
@@ -60,10 +76,16 @@ def goToWork(working_hours, case: Case):
             ttd = appear(Animal.DOG)
 
         if ttc == 0:
-            if myQueue.isEmpty():
-                myQueue.enqueue(Animal.CAT)
+            if case == Case.B3:
+                if extraQueue.isEmpty():
+                    extraQueue.enqueue(Animal.CAT)
+                else:
+                    statistics['D'] += 1
             else:
-                statistics['D'] += 1
+                if myQueue.isEmpty():
+                    myQueue.enqueue(Animal.CAT)
+                else:
+                    statistics['D'] += 1
 
         
         if ttd == 0:
@@ -76,17 +98,31 @@ def goToWork(working_hours, case: Case):
         if ttl == -1:
             if not myQueue.isEmpty():
                 client = myQueue.dequeue()
-                ttl = round(wait(client, case))
+                ttl = round(wait(client, Animal.BUNNY, case))
         elif ttl == 0:
             revenue += getPayment(client)
-            statistics[client] += 1
+            try:
+                statistics[client] += 1
+            except:
+                print(client)
             client = None
+
+        if case == Case.B3:
+            if ttl_turtles == -1:
+                if not extraQueue.isEmpty():
+                    extraQueue.dequeue() # No need to take the value popped since we know its a cat
+                    ttl_turtles = round(wait(Animal.CAT, Animal.TURTLE, Case.B3))
+            elif ttl_turtles == 0:
+                revenue += getPayment(Animal.CAT)
+                statistics[Animal.CAT] += 1
+
 
         n += myQueue.getSize()
 
         ttd -= 1
         ttc -= 1
         if ttl > -1: ttl -= 1
+        if case == Case.B3 and ttl_turtles > -1: ttl_turtles -= 1
         time += 1
 
     

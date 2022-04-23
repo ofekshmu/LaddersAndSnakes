@@ -131,6 +131,9 @@ def simulate(n_simulations = 5000, boardSize = 3):
     stats = {PLAYER1: 0, PLAYER2: 0, TIE: 0}
 
     for i in range(n_simulations):
+        percent = round(n_simulations / 100)
+        if i % (percent) == 0:
+            print(f"{i / percent}% ...")
         result = gameLoop(boardSize)
         stats[result] += 1
     

@@ -29,8 +29,10 @@ def wait(customer : Animal, provider: Animal, case: Case):
     (lambda_cat, lambda_dog) = WAITING_CONST_B3 if provider == Animal.TURTLE else WAITING_CONST
     
     if customer == Animal.CAT:
+        print("Cat",multiplier*lambda_cat)
         return np.random.exponential(multiplier*lambda_cat)
     elif customer == Animal.DOG:
+        print("Dog",multiplier*lambda_dog)
         return np.random.exponential(multiplier*lambda_dog)
     else:
         raise exception(f"Value Error: {customer}")
@@ -110,6 +112,7 @@ def goToWork(working_hours, case: Case):
             if not myQueue.isEmpty():
                 client = myQueue.dequeue()
                 ttl = round(wait(client, Animal.BUNNY, case))
+                #print(ttl)
         elif ttl == 0:                          # Treatment is finished
             revenue += getPayment(client)
             statistics[client] += 1
@@ -165,10 +168,10 @@ def analysis(results, days):
     statistics['queue size'] = statistics['queue size']/days
 
     print(f""" ~~~~~~~ Statistics for {days} days ~~~~~~~
-    Dogs accepted: {statistics[Animal.DOG]} 
-    Cats accepted: {statistics[Animal.CAT]} 
-    Dogs rejected: {statistics['C']} 
-    Cats rejected: {statistics['D']}     
+    Dogs accepted: {statistics[Animal.DOG]/days} 
+    Cats accepted: {statistics[Animal.CAT]/days} 
+    Dogs rejected: {statistics['C']/days} 
+    Cats rejected: {statistics['D']/days}     
     Avrage Revenue: {statistics['Revenue']}     
     Avrage Queue size: {statistics['queue size']}     
     """)
@@ -177,7 +180,7 @@ def main():
     # --- Parameters for the user to Change ---
     days = 100 # Should be 100
     working_hours = 12 # out of 24
-    case = Case.B2
+    case = Case.A
     # -----------------------------------------
     
     results = simulate(days, working_hours, case)

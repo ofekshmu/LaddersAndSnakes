@@ -43,4 +43,17 @@ Different subtasks of the assignment can be switched trough the variable **case*
 
 2. ttl variables are all lower bounded by 0 (including), while the value **-1** represents a vaccant spot and is used only as an indication with no specific meaning to the value itself.
 
+queueModule.R
 
+This file is not required to run the code. It is an adititonal file, implemanting an Integer queue of a given size in R. It was created in the process of converting the current task to R.
+It is open for future testing and features.
+
+Current API:
+- create_queue
+- enqueue
+- peek
+- pop
+- prnt_queue
+- is_empty
+- is_full
+- get_queue_size
